@@ -1,0 +1,125 @@
+openapi: 3.0.3
+info:
+  title: Products API
+  description: API First contract
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: Products
+paths:
+  /products:
+    get:
+      tags: [Products]
+      operationId: listProducts
+      summary: List all products
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      tags: [Products]
+      operationId: createProduct
+      summary: Create a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewProduct'
+      responses:
+        '201':
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid data
+  /products/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Products]
+      operationId: getProduct
+      summary: Get a product by its id
+      responses:
+        '200':
+          description: Product founded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Not exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorApi'
+    delete:
+      tags: [Products]
+      operationId: deleteProduct
+      summary: Delete a product
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Not exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorApi'
+components:
+  schemas:
+    NewProduct:
+      type: object
+      required: [name, price]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: Mouse
+        price:
+          type: number
+          format: double
+          minimum: 0.01
+          example: 89.9
+        stock:
+          type: integer
+          minimum: 0
+          default: 0
+          example: 10
+    Product:
+      type: object
+      required: [id, name, price, stock]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        price:
+          type: number
+          format: double
+        stock:
+          type: integer
+    ErrorApi:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: PRODUCT_NOT_FOUND
+        message:
+          type: string
